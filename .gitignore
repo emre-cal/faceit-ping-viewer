@@ -1,0 +1,12 @@
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build output
+faceit-ping-viewer-*.zip
+
+# Logs / temp
+*.log
+.tmp/

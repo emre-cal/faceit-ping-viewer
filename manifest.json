@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "FACEIT Ping Viewer",
+  "version": "0.1.0",
+  "description": "FACEIT maç ekranında her sunucu lokasyonuna olan ping değerlerinizi gösterir. Daha iyi server vote'u verin.",
+  "author": "emrecaal@gmail.com",
+  "homepage_url": "https://github.com/emre-cal/faceit-ping-viewer",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://*.faceit.com/*",
+    "https://*.hetzner.com/*",
+    "https://*.linode.com/*"
+  ],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.faceit.com/*"],
+      "js": ["src/content.js"],
+      "css": ["src/overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "FACEIT Ping Viewer"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FACEIT Ping Viewer — Icon Generator</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; padding: 32px; background:#0f1115; color:#e5e7eb; }
+    h1 { color: #ff5500; margin: 0 0 16px; }
+    p { color:#9ca3af; max-width: 600px; }
+    canvas { background:#000; image-rendering: pixelated; margin-right: 16px; vertical-align: bottom; border: 1px solid #333; }
+    button { display:inline-block; margin-top:8px; padding:6px 12px; background:#ff5500;
+             color:#fff; border:0; border-radius:6px; cursor:pointer; font-weight:600; }
+    button:hover { background:#ff6a1a; }
+    .row { margin-bottom: 24px; }
+    .row > * { display:inline-block; }
+    label { color:#9ca3af; font-size: 12px; margin-right:8px; }
+  </style>
+</head>
+<body>
+  <h1>FACEIT Ping Viewer — Icon Generator</h1>
+  <p>Tarayıcıda bu sayfayı açtığınızda aşağıda 3 boyutta ikon çizilir. "İndir" butonlarına tıklayıp 3 PNG'yi <code>icons/</code> klasörüne aynı isimle kaydedin.</p>
+
+  <div class="row">
+    <label>16×16</label>
+    <canvas id="c16" width="16" height="16"></canvas>
+    <button onclick="download(16)">icon16.png indir</button>
+  </div>
+  <div class="row">
+    <label>48×48</label>
+    <canvas id="c48" width="48" height="48"></canvas>
+    <button onclick="download(48)">icon48.png indir</button>
+  </div>
+  <div class="row">
+    <label>128×128</label>
+    <canvas id="c128" width="128" height="128"></canvas>
+    <button onclick="download(128)">icon128.png indir</button>
+  </div>
+
+  <script>
+    function draw(size) {
+      const c = document.getElementById("c" + size);
+      const ctx = c.getContext("2d");
+
+      // arka plan: koyu daire, FACEIT turuncusu kenar
+      ctx.fillStyle = "#14161c";
+      ctx.beginPath();
+      ctx.arc(size/2, size/2, size/2 - size*0.05, 0, Math.PI * 2);
+      ctx.fill();
+
+      // turuncu signal/wifi arcs
+      ctx.strokeStyle = "#ff5500";
+      ctx.lineCap = "round";
+      const cx = size/2, cy = size * 0.6;
+      const arcs = 3;
+      for (let i = 1; i <= arcs; i++) {
+        ctx.lineWidth = Math.max(1, size * 0.06);
+        ctx.beginPath();
+        ctx.arc(cx, cy, size * 0.12 * i, Math.PI * 1.2, Math.PI * 1.8);
+        ctx.stroke();
+      }
+      // signal source dot
+      ctx.fillStyle = "#ff5500";
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * 0.06, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function download(size) {
+      const c = document.getElementById("c" + size);
+      const link = document.createElement("a");
+      link.download = `icon${size}.png`;
+      link.href = c.toDataURL("image/png");
+      link.click();
+    }
+
+    [16, 48, 128].forEach(draw);
+  </script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <title>FACEIT Ping Viewer</title>
+  <link rel="stylesheet" href="../src/overlay.css" />
+  <style>
+    body {
+      margin: 0; padding: 60px 40px;
+      background: linear-gradient(180deg, #0a0c10 0%, #14171f 100%);
+      color: #e5e7eb;
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh; box-sizing: border-box;
+    }
+    .room { max-width: 1100px; margin: 0 auto; }
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 32px;
+    }
+    h1 {
+      font-size: 22px; margin: 0; color: #fff; letter-spacing: 0.02em;
+      display: flex; align-items: center; gap: 12px;
+    }
+    h1 .badge {
+      background: #ff5500; color: #fff; padding: 4px 10px; border-radius: 4px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    }
+    .timer {
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      color: #fbbf24; font-size: 18px; font-weight: 600;
+    }
+    .section {
+      background: rgba(30, 33, 42, 0.7);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 14px;
+      padding: 26px 28px; margin-bottom: 18px;
+      backdrop-filter: blur(8px);
+    }
+    .section h2 {
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em;
+      color: #ff5500; margin: 0 0 18px; font-weight: 700;
+    }
+    .server-vote-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+    }
+    .server-option {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, #24272f 0%, #1e2128 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .server-option.selected { border-color: #ff5500; }
+    .server-name { font-weight: 600; font-size: 15px; color: #fff; }
+    .vote-count {
+      font-size: 11px; color: #6b7280; margin-left: 10px;
+    }
+    .map-row {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    }
+    .map-card {
+      aspect-ratio: 16/10;
+      background: linear-gradient(135deg, #2a2f3a 0%, #1a1d24 100%);
+      border-radius: 8px;
+      display: flex; align-items: flex-end; padding: 10px;
+      font-size: 11px; font-weight: 600; color: #9ca3af;
+      text-transform: uppercase; letter-spacing: 0.05em;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+  </style>
+</head>
+<body>
+  <div class="room">
+    <div class="header">
+      <h1>
+        <span class="badge">MATCH ROOM</span>
+        CS2 — 5v5 Premade
+      </h1>
+      <div class="timer">VOTING · 00:18</div>
+    </div>
+
+    <div class="section">
+      <h2>Map Pool</h2>
+      <div class="map-row">
+        <div class="map-card">Mirage</div>
+        <div class="map-card">Inferno</div>
+        <div class="map-card">Anubis</div>
+        <div class="map-card">Nuke</div>
+      </div>
+    </div>
+
+    <div class="section" data-testid="match-room-server-vote">
+      <h2>Server Vote — Lowest ping recommended</h2>
+      <div class="server-vote-grid">
+        <div class="server-option selected" data-testid="server-vote-option" aria-label="Vote for Helsinki">
+          <div><span class="server-name">Helsinki</span><span class="vote-count">3 votes</span></div>
+          <span class="fpv-badge fpv-good">24 ms</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" aria-label="Vote for Frankfurt">
+          <div><span class="server-name">Frankfurt</span><span class="vote-count">2 votes</span></div>
+          <span class="fpv-badge fpv-good">31 ms</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" aria-label="Vote for Stockholm">
+          <div><span class="server-name">Stockholm</span><span class="vote-count">1 vote</span></div>
+          <span class="fpv-badge fpv-mid">58 ms</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" aria-label="Vote for Amsterdam">
+          <div><span class="server-name">Amsterdam</span><span class="vote-count">0 votes</span></div>
+          <span class="fpv-badge fpv-mid">62 ms</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" aria-label="Vote for London">
+          <div><span class="server-name">London</span><span class="vote-count">0 votes</span></div>
+          <span class="fpv-badge fpv-mid">74 ms</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" aria-label="Vote for Paris">
+          <div><span class="server-name">Paris</span><span class="vote-count">0 votes</span></div>
+          <span class="fpv-badge fpv-bad">128 ms</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

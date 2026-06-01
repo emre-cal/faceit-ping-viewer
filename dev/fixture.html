@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Fixture: FACEIT match room (mock)</title>
+  <link rel="stylesheet" href="../src/overlay.css" />
+  <style>
+    body {
+      margin: 0; padding: 40px;
+      background: #0f1115;
+      color: #e5e7eb;
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+    .room { max-width: 920px; margin: 0 auto; }
+    h1 { font-size: 18px; color: #ff5500; margin: 0 0 20px; letter-spacing: 0.02em; }
+    .section {
+      background: #181b22;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .section h2 {
+      font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em;
+      color: #9ca3af; margin: 0 0 12px;
+    }
+    /* Tahmini FACEIT server vote butonu (en yaygın layout) */
+    .server-vote-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .server-option {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: #22262f;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .server-option:hover { background: #2a2f3a; }
+    .server-name { font-weight: 600; }
+    .vote-count { font-size: 11px; color: #9ca3af; }
+    .info { font-size: 12px; color: #6b7280; padding: 12px 0; }
+    button.dev { margin-top: 20px; padding: 8px 16px; background: #ff5500; color: #fff;
+                 border: 0; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="room">
+    <h1>MOCK FACEIT MATCH ROOM — geliştirme fixture'ı</h1>
+
+    <div class="section">
+      <h2>Map Vote</h2>
+      <div class="info">Map seçimi (eklenti bu kısımla ilgilenmiyor)</div>
+    </div>
+
+    <!--
+      Bu bölüm FACEIT'in server vote UI'ının tahmini bir karşılığıdır.
+      Gerçek FACEIT DOM'u büyük olasılıkla farklıdır. Detector.js bu fixture'da
+      çalışıyorsa, gerçek FACEIT'te de küçük selector ayarlarıyla çalışacak şekilde
+      tasarlandı (multi-strategy).
+    -->
+    <div class="section" data-testid="match-room-server-vote">
+      <h2>Server Vote</h2>
+      <div class="server-vote-grid">
+        <div class="server-option" data-testid="server-vote-option" role="button" aria-label="Vote for Helsinki">
+          <span class="server-name">Helsinki</span>
+          <span class="vote-count">3 votes</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" role="button" aria-label="Vote for Stockholm">
+          <span class="server-name">Stockholm</span>
+          <span class="vote-count">1 vote</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" role="button" aria-label="Vote for Frankfurt">
+          <span class="server-name">Frankfurt</span>
+          <span class="vote-count">0 votes</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" role="button" aria-label="Vote for Amsterdam">
+          <span class="server-name">Amsterdam</span>
+          <span class="vote-count">2 votes</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" role="button" aria-label="Vote for London">
+          <span class="server-name">London</span>
+          <span class="vote-count">0 votes</span>
+        </div>
+        <div class="server-option" data-testid="server-vote-option" role="button" aria-label="Vote for Paris">
+          <span class="server-name">Paris</span>
+          <span class="vote-count">0 votes</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="dev" id="rerun">Detector'ı yeniden çalıştır</button>
+  </div>
+
+  <script type="module" src="./harness.js"></script>
+</body>
+</html>
