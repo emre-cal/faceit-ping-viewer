@@ -7,7 +7,16 @@
 (() => {
   const MATCH_URL_PATTERN = /\/(en|tr|[a-z]{2})\/cs2\/room\//i;
   const BADGE_CLASS = "fpv-badge";
-  const REFRESH_INTERVAL_MS = 10_000;
+  const REFRESH_INTERVAL_SEC = 3;
+  const MAX_MEASUREMENTS = 5;
+  // Opaque fetch DNS+TCP+TLS handshake overhead'i içerir. Empirik olarak
+  // HTTP RTT ≈ oyun pingi × 3.4 (kullanıcı: terminal 50ms, biz 170ms).
+  // Storage'a ham değer; ekranda dönüştürülmüş oyun pingi.
+  const HTTP_TO_GAME_RATIO = 3.4;
+
+  function estimatedPing(httpRtt) {
+    return httpRtt == null ? null : Math.round(httpRtt / HTTP_TO_GAME_RATIO);
+  }
 
   // ─── Detector ────────────────────────────────────────────────────────────
   // FACEIT matchmaking server vote vermez; sistem otomatik bir ülke seçer ve
@@ -55,57 +64,103 @@
 
   // ─── UI ──────────────────────────────────────────────────────────────────
   function classifyPing(ms) {
+    // ms = tahmini oyun pingi (HTTP RTT / 3.4)
     if (ms == null) return "fpv-fail";
-    if (ms < 40)  return "fpv-good";
-    if (ms < 90)  return "fpv-mid";
-    return "fpv-bad";
+    if (ms < 40)  return "fpv-good";   // <40ms — mükemmel
+    if (ms < 80)  return "fpv-mid";    // 40-80ms — kabul edilebilir
+    return "fpv-bad";                   // >80ms — kötü
   }
 
-  function attachBadge(targetEl, ping) {
-    let badge = targetEl.querySelector(`:scope > .${BADGE_CLASS}`);
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  function makeProgressRing() {
+    const svg = document.createElementNS(SVG_NS, "svg");
+    svg.setAttribute("class", "fpv-progress");
+    svg.setAttribute("viewBox", "0 0 16 16");
+    svg.setAttribute("width", "14");
+    svg.setAttribute("height", "14");
+    const track = document.createElementNS(SVG_NS, "circle");
+    track.setAttribute("cx", "8"); track.setAttribute("cy", "8"); track.setAttribute("r", "6");
+    track.setAttribute("class", "fpv-progress-track");
+    const fill = document.createElementNS(SVG_NS, "circle");
+    fill.setAttribute("cx", "8"); fill.setAttribute("cy", "8"); fill.setAttribute("r", "6");
+    fill.setAttribute("class", "fpv-progress-fill");
+    fill.setAttribute("transform", "rotate(-90 8 8)"); // SVG attribute — pixel-explicit origin
+    svg.append(track, fill);
+    return svg;
+  }
+
+  function attachBadge(targetEl, ping, withProgress) {
+    let badge = targetEl.querySelector(`:scope .${BADGE_CLASS}`);
     if (!badge) {
       badge = document.createElement("span");
       badge.className = BADGE_CLASS;
-      targetEl.appendChild(badge);
+      const holder = targetEl.querySelector(".styles__HolderDiv-sc-380ea27-1") || targetEl;
+      holder.appendChild(badge);
     }
+    const est = estimatedPing(ping);
     badge.classList.remove("fpv-good", "fpv-mid", "fpv-bad", "fpv-fail");
-    badge.classList.add(classifyPing(ping));
-    badge.textContent = ping == null ? "— ms" : `${ping} ms`;
+    badge.classList.add(classifyPing(est));
+
+    const pingText = est == null ? "— ms" : `${est} ms`;
+    badge.textContent = pingText;
+    if (withProgress) badge.appendChild(makeProgressRing());
   }
 
-  async function pingAndDecorate(el, server) {
+  let lastPing = null;
+
+  async function measureAndDecorate(card, info, isLast) {
     const { ping } = await chrome.runtime.sendMessage({
-      type: "measureOne", id: server.id, host: server.host
+      type: "measureOne", id: info.id, host: info.host
     });
-    attachBadge(el, ping);
+    lastPing = ping;
+    attachBadge(card, ping, !isLast); // son ölçümde progress ring olmasın
   }
 
-  async function scanAndDecorate() {
+  async function discoverAndMeasure(isLast) {
     const card = findServerCard(document);
     if (!card) {
       console.debug("[fpv] scan: server preference card bulunamadı");
-      return;
+      return null;
     }
     const info = extractServerInfo(card);
-    if (!info) {
-      console.debug("[fpv] scan: server card bulundu ama bilgi çıkarılamadı");
-      return;
-    }
-    console.log(`[fpv] scan: server = ${info.label} (${info.id})`);
+    if (!info) return null;
     await chrome.runtime.sendMessage({ type: "discoverServer", server: info });
-    pingAndDecorate(card, info);
+    await measureAndDecorate(card, info, isLast);
+    return { card, info };
   }
 
   // ─── Lifecycle ───────────────────────────────────────────────────────────
-  let scanTimer = null;
-  function startScanning() {
-    if (scanTimer) return;
-    scanAndDecorate();
-    scanTimer = setInterval(scanAndDecorate, REFRESH_INTERVAL_MS);
+  let tickTimer = null;
+  let measurementCount = 0;
+  let lastCard = null;
+
+  async function runMeasurement() {
+    const isLast = measurementCount + 1 >= MAX_MEASUREMENTS;
+    const result = await discoverAndMeasure(isLast);
+    if (result) {
+      lastCard = result.card;
+      measurementCount++;
+      console.log(`[fpv] ölçüm #${measurementCount}/${MAX_MEASUREMENTS} = ${lastPing}ms`);
+      if (measurementCount >= MAX_MEASUREMENTS) {
+        clearInterval(tickTimer);
+        tickTimer = null;
+      }
+    }
   }
+
+  function startScanning() {
+    if (tickTimer) return;
+    console.log(`[fpv] scan başladı (en fazla ${MAX_MEASUREMENTS} ölçüm, ${REFRESH_INTERVAL_SEC}sn arayla)`);
+    measurementCount = 0;
+    runMeasurement(); // ilk ölçüm hemen
+    tickTimer = setInterval(runMeasurement, REFRESH_INTERVAL_SEC * 1000);
+  }
+
   function stopScanning() {
-    clearInterval(scanTimer);
-    scanTimer = null;
+    clearInterval(tickTimer);
+    tickTimer = null;
+    measurementCount = 0;
+    lastCard = null;
     document.querySelectorAll(`.${BADGE_CLASS}`).forEach((b) => b.remove());
   }
 
@@ -121,9 +176,9 @@
     if (location.href !== lastUrl) {
       lastUrl = location.href;
       onUrlChange();
-    } else if (scanTimer) {
-      scanAndDecorate();
     }
+    // URL aynı kaldıkça tick timer'ı zaten 3sn'de bir ölçüm yapıyor;
+    // DOM değişimi için ek bir tetik yok (gereksiz ping atmamak için)
   }).observe(document.body, { childList: true, subtree: true });
 
   onUrlChange();

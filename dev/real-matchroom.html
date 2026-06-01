@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Real FACEIT match room (extracted)</title>
+  <link rel="stylesheet" href="../src/overlay.css" />
+  <style>
+    body {
+      margin: 0; padding: 40px;
+      background: #0f1115; color: #e5e7eb;
+      font: 14px/1.5 -apple-system, sans-serif;
+    }
+    h1 { color: #ff5500; font-size: 18px; margin: 0 0 8px; }
+    .note {
+      color: #9ca3af; font-size: 12px; max-width: 700px;
+      margin-bottom: 24px; line-height: 1.5;
+    }
+    .results {
+      background: #181b22;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-bottom: 24px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 12px;
+    }
+    .results h3 { color: #ff5500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 10px; }
+    .results pre { margin: 0; color: #f5f5f5; white-space: pre-wrap; }
+
+    /* —————— GERÇEK FACEIT DOM (kullanıcı tarafından paylaşılan) —————— */
+    /* Sadece test için gerekli olan minimum subtree: Preferences container */
+    .Preferences__Container-sc-7b4ce05b-0 {
+      background: rgba(30,33,42,0.7); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 18px 22px; max-width: 360px;
+    }
+    .TitleWithStats__Container-sc-52df9830-0 { margin-bottom: 10px; }
+    .Title-sc-b3d38881-0 { font-weight: 600; color: #fff; font-size: 13px; }
+    [data-testid="matchPreference"] {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px; margin-bottom: 12px;
+      background: #22262f; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+    }
+    .styles__HolderDiv-sc-380ea27-1 { display: flex; align-items: center; gap: 12px; width: 100%; }
+    .styles__Image-sc-cfcaa47d-2 {
+      width: 40px; height: 20px;
+      background-image: var(--bg, none);
+      background-size: cover; background-position: center;
+      border-radius: 3px;
+    }
+    .styles__Image-sc-cfcaa47d-2[src] { /* flag URL src attribute'ta */ }
+    .styles__Name-sc-cfcaa47d-3 { color: #fff; font-weight: 500; }
+    .fpv-badge {
+      margin-left: auto;
+      padding: 4px 10px; border-radius: 999px;
+      background: rgba(0,0,0,0.5); color: #f5f5f5;
+      font: 600 11px/1 -apple-system, sans-serif;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .fpv-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; display: inline-block; }
+    .fpv-badge.fpv-good { color: #4ade80; }
+    .fpv-badge.fpv-mid  { color: #fbbf24; }
+    .fpv-badge.fpv-bad  { color: #ef4444; }
+    .fpv-badge.fpv-fail { color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <h1>Real FACEIT Match Room — Detector Test</h1>
+  <p class="note">
+    Bu sayfa kullanıcının paylaştığı gerçek match room DOM'undan çıkarılmış minimum
+    subtree içerir. Aşağıdaki "Server" preference card FACEIT'in production'ından
+    olduğu gibi alındı (data-testid, class isimleri, flag URL pattern aynen).
+    Test script (real-matchroom-harness.js) detector.js'i import edip bu DOM'a
+    karşı çalıştırır, sonuçları "Results" panelinde gösterir.
+  </p>
+
+  <div class="results">
+    <h3>Detector Results</h3>
+    <pre id="results">Çalışıyor…</pre>
+  </div>
+
+  <!-- ============== GERÇEK FACEIT DOM SUBTREE ============== -->
+  <div class="Preferences__Container-sc-7b4ce05b-0 hWUtGt">
+
+    <!-- Server preference card -->
+    <div class="TitleWithStats__Container-sc-52df9830-0 elrdwn">
+      <div class="TextBlock__Holder-sc-329a9735-0 gTIjWX">
+        <div class="TextBlock__RowHolder-sc-329a9735-1 kjkvSq">
+          <span class="Text__StyledText-sc-7932e744-0 Title-sc-b3d38881-0 dLQDVC bPCVhz">Server</span>
+        </div>
+      </div>
+    </div>
+    <div data-testid="matchPreference" class="styles__Background-sc-380ea27-0 kZOlVn">
+      <div class="styles__HolderDiv-sc-380ea27-1 epphVw">
+        <div class="styles__SlotWrapper-sc-380ea27-3 cFsfBq startSlot">
+          <div src="https://distribution.faceit-cdn.net/images/flags/v1/nl.jpg?width=110&amp;height=55" class="styles__Image-sc-cfcaa47d-2 jAECJX"></div>
+        </div>
+        <div class="styles__SlotWrapper-sc-380ea27-3 styles__MiddleSlotWrapper-sc-380ea27-4 cFsfBq dxkuYr middleSlot">
+          <div class="styles__TextHolder-sc-cfcaa47d-1 jrVgte">
+            <div>
+              <span class="Text__StyledText-sc-7932e744-0 dLQDVC">
+                <span class="Text__StyledText-sc-7932e744-0 styles__Name-sc-cfcaa47d-3 dLQDVC hVvTZo">Netherlands</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="styles__SlotWrapper-sc-380ea27-3 cFsfBq endSlot">
+          <div class="PreferenceCard__EndSlot-sc-4bfe1126-0 jWUNtN"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Map preference card (flag DEĞIL, votables image içerir; detector bunu görmezden gelmeli) -->
+    <div class="TitleWithStats__Container-sc-52df9830-0 elrdwn">
+      <div class="TextBlock__Holder-sc-329a9735-0 gTIjWX">
+        <div class="TextBlock__RowHolder-sc-329a9735-1 kjkvSq">
+          <span class="Text__StyledText-sc-7932e744-0 Title-sc-b3d38881-0 dLQDVC bPCVhz">Map</span>
+        </div>
+      </div>
+    </div>
+    <div data-testid="matchPreference" class="styles__Background-sc-380ea27-0 kZOlVn">
+      <div class="styles__HolderDiv-sc-380ea27-1 epphVw">
+        <div class="styles__SlotWrapper-sc-380ea27-3 cFsfBq startSlot">
+          <div src="https://assets.faceit-cdn.net/third_party/games/ce652bd4-0abb-4c90-9936-1133965ca38b/assets/votables/adf58ac6-b0f3-40e9-87ef-0af23fc60918_1695819116078.jpeg" class="styles__Image-sc-cfcaa47d-2 dgyCmy"></div>
+        </div>
+        <div class="styles__SlotWrapper-sc-380ea27-3 styles__MiddleSlotWrapper-sc-380ea27-4 cFsfBq dxkuYr middleSlot">
+          <div class="styles__TextHolder-sc-cfcaa47d-1 jrVgte">
+            <div>
+              <span class="Text__StyledText-sc-7932e744-0 dLQDVC">
+                <span class="Text__StyledText-sc-7932e744-0 styles__Name-sc-cfcaa47d-3 dLQDVC hVvTZo">Dust2</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script type="module" src="./real-matchroom-harness.js"></script>
+</body>
+</html>

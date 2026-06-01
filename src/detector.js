@@ -1,131 +1,50 @@
-// FACEIT match room DOM'undan server vote seçeneklerini bulan ve içlerinden
-// sunucu bilgisini çıkaran iki fonksiyon. FACEIT DOM'u bilinmiyor olduğu için
-// birden fazla selector stratejisi sırayla deneniyor — biri tutarsa yeter.
-// Gerçek FACEIT match'i incelendiğinde, çalışan stratejiyi en üste taşı veya
-// gerçek selector'ı ekle.
+// FACEIT match room'daki seçilmiş sunucu kartını bulan ve country code'unu
+// çıkaran yardımcılar. content.js bu mantığın inline kopyasını içerir; bu
+// modül dev/harness için aynı kodun "import edilebilir" sürümüdür.
 
-const SELECTOR_STRATEGIES = [
-  // En spesifikten en geneline:
-  '[data-testid="server-vote-option"]',
-  '[data-testid*="server-vote"]',
-  '[data-testid*="server"][role="button"]',
-  '[aria-label^="Vote for" i]',
-  '.server-option',
-  '[class*="ServerVote"] [role="button"]',
-  '[class*="server-vote"] button',
-  '[class*="server-vote"] [class*="option"]'
-];
-
-/**
- * Match room DOM'undaki server vote seçeneklerini bulur.
- * Birden fazla strateji dener, ilk tutan stratejinin sonucunu döner.
- * @param {Document|HTMLElement} root
- * @returns {HTMLElement[]}
- */
-export function findServerVoteOptions(root) {
-  for (const selector of SELECTOR_STRATEGIES) {
-    const els = [...root.querySelectorAll(selector)];
-    if (els.length > 0) {
-      console.debug(`[fpv] selector tuttu: "${selector}" (${els.length} element)`);
-      return els;
-    }
-  }
-  return [];
-}
-
-/**
- * Bir server vote element'inden sunucu bilgisini çıkarır.
- * @param {HTMLElement} el
- * @returns {{ id: string, label: string, host: string } | null}
- */
-export function extractServerInfo(el) {
-  const name = extractLocationName(el);
-  if (!name) return null;
-
-  const host = hostFromLocation(name);
-  if (!host) {
-    console.debug(`[fpv] bilinmeyen lokasyon: "${name}" — host map'ine ekle`);
-    return null;
-  }
-
-  return {
-    id: name.toLowerCase().replace(/\s+/g, "-"),
-    label: name,
-    host
-  };
-}
-
-/** Element'in içinden lokasyon ismini birden fazla stratejiyle çıkarmaya çalışır. */
-function extractLocationName(el) {
-  // 1) aria-label="Vote for Helsinki" → "Helsinki"
-  const aria = el.getAttribute("aria-label");
-  if (aria) {
-    const match = aria.match(/(?:vote\s+for\s+)?(.+)/i);
-    if (match) {
-      const candidate = match[1].trim();
-      if (isKnownLocation(candidate)) return candidate;
-    }
-  }
-
-  // 2) data-server-name veya benzeri attribute
-  const dataName = el.dataset.serverName || el.dataset.location || el.dataset.region;
-  if (dataName && isKnownLocation(dataName)) return dataName;
-
-  // 3) İç metin: en uzun word grup'unu al, bilinen lokasyonla eşleşeni seç
-  const text = el.textContent?.trim() ?? "";
-  for (const known of Object.keys(LOCATION_TO_HOST)) {
-    const re = new RegExp(`\\b${known.replace(/\s+/g, "\\s+")}\\b`, "i");
-    if (re.test(text)) {
-      // Orijinal kelime yazımını koru (Helsinki, US East)
-      return known
-        .split(" ")
-        .map((w) => w[0].toUpperCase() + w.slice(1))
-        .join(" ");
-    }
-  }
-
-  // 4) En içteki span/text'i dene
-  const nameEl = el.querySelector('[class*="name" i], [class*="label" i], .server-name');
-  if (nameEl?.textContent) {
-    const candidate = nameEl.textContent.trim();
-    if (isKnownLocation(candidate)) return candidate;
-  }
-
-  return null;
-}
-
-function isKnownLocation(name) {
-  return name.toLowerCase().trim() in LOCATION_TO_HOST;
-}
-
-// Bilinen FACEIT lokasyonları → ping ölçümü için HTTPS endpoint'i.
-// FACEIT relay'lerinin tam IP'leri public değil; aynı şehirdeki cloud
-// datacenter speed-test endpoint'leri proxy olarak kullanılıyor.
-// FACEIT'in EU sunucularının çoğu Hetzner'da olduğu için Hetzner endpoint'leri
-// gerçek FACEIT pingine çok yakın değer verir (±5-10ms).
-export const LOCATION_TO_HOST = {
-  // Hetzner (FACEIT'in büyük olasılıkla kullandığı sağlayıcı)
-  "helsinki":  "https://hel1-speed.hetzner.com",
-  "frankfurt": "https://fsn1-speed.hetzner.com",  // Falkenstein, Frankfurt'a ~250km
-  "nuremberg": "https://nbg1-speed.hetzner.com",
-  "us east":   "https://ash-speed.hetzner.com",    // Ashburn, VA
-  "us west":   "https://hil-speed.hetzner.com",    // Hillsboro, OR
-  "singapore": "https://sin-speed.hetzner.com",
-
-  // Linode (diğer bölgeler için)
-  "stockholm": "https://speedtest.london.linode.com",   // en yakın alternatif
-  "amsterdam": "https://speedtest.frankfurt.linode.com", // en yakın alternatif
-  "london":    "https://speedtest.london.linode.com",
-  "paris":     "https://speedtest.frankfurt.linode.com", // en yakın alternatif
-  "warsaw":    "https://speedtest.frankfurt.linode.com",
-  "chicago":   "https://speedtest.dallas.linode.com",
-  "oceania":   "https://speedtest.sydney1.linode.com",
-  "sydney":    "https://speedtest.sydney1.linode.com",
-  "tokyo":     "https://speedtest.tokyo2.linode.com",
-  "mumbai":    "https://speedtest.mumbai1.linode.com"
+export const COUNTRY_TO_LOCATION = {
+  "nl": { label: "Netherlands",   host: "https://fsn1-speed.hetzner.com" },
+  "de": { label: "Germany",       host: "https://fsn1-speed.hetzner.com" },
+  "fi": { label: "Finland",       host: "https://hel1-speed.hetzner.com" },
+  "se": { label: "Sweden",        host: "https://hel1-speed.hetzner.com" },
+  "gb": { label: "UK",            host: "https://speedtest.london.linode.com" },
+  "uk": { label: "UK",            host: "https://speedtest.london.linode.com" },
+  "fr": { label: "France",        host: "https://fsn1-speed.hetzner.com" },
+  "pl": { label: "Poland",        host: "https://fsn1-speed.hetzner.com" },
+  "ru": { label: "Russia",        host: "https://hel1-speed.hetzner.com" },
+  "tr": { label: "Turkey",        host: "https://fsn1-speed.hetzner.com" },
+  "us": { label: "USA",           host: "https://ash-speed.hetzner.com" },
+  "ca": { label: "Canada",        host: "https://ash-speed.hetzner.com" },
+  "sg": { label: "Singapore",     host: "https://sin-speed.hetzner.com" },
+  "au": { label: "Australia",     host: "https://speedtest.sydney1.linode.com" },
+  "jp": { label: "Japan",         host: "https://speedtest.tokyo2.linode.com" }
 };
 
-export function hostFromLocation(label) {
-  const key = label.toLowerCase().trim();
-  return LOCATION_TO_HOST[key] ?? null;
+/**
+ * Match room'da `[data-testid="matchPreference"]` ile işaretli iki kart vardır
+ * (server + map). Server kartını ayırt etmek için flag image URL pattern'ini
+ * kullanıyoruz (`/flags/v1/xx.jpg`).
+ */
+export function findServerCard(root) {
+  const cards = [...root.querySelectorAll('[data-testid="matchPreference"]')];
+  return cards.find((c) => c.querySelector('[src*="/flags/v1/"]')) ?? null;
+}
+
+/**
+ * Flag image URL'inden country code çıkarır ve COUNTRY_TO_LOCATION map'inden
+ * label + ping host'u döner.
+ * @returns {{ id: string, label: string, host: string } | null}
+ */
+export function extractServerInfo(card) {
+  const flag = card.querySelector('[src*="/flags/v1/"]');
+  if (!flag) return null;
+  const src = flag.getAttribute("src") || "";
+  const m = src.match(/\/flags\/v1\/([a-z]{2})\.(?:jpg|png|webp)/i);
+  if (!m) return null;
+  const code = m[1].toLowerCase();
+  const info = COUNTRY_TO_LOCATION[code];
+  if (!info) return null;
+  const nameEl = card.querySelector('[class*="Name-sc-"]');
+  const label = nameEl?.textContent?.trim() || info.label;
+  return { id: code, label, host: info.host };
 }

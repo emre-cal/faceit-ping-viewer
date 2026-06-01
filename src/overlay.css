@@ -26,3 +26,29 @@
 .fpv-badge.fpv-mid  { color: #fbbf24; }
 .fpv-badge.fpv-bad  { color: #ef4444; }
 .fpv-badge.fpv-fail { color: #9ca3af; }
+
+/* Animasyonlu progress halkası — 3sn'de saat yönünde dolar.
+   SVG stroke-dasharray tekniği, transform SVG attribute'ünde (CSS değil). */
+.fpv-progress {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  overflow: visible;
+}
+.fpv-progress-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.22);
+  stroke-width: 2;
+}
+.fpv-progress-fill {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 37.7;        /* 2π · 6 */
+  stroke-dashoffset: 37.7;
+  animation: fpv-fill 3s linear infinite;
+}
+@keyframes fpv-fill {
+  to { stroke-dashoffset: 0; }
+}
