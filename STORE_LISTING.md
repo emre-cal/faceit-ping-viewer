@@ -1,59 +1,64 @@
 # Chrome Web Store — Listing Copy
 
 Bu dosya doğrudan kullanılmaz; Web Store developer dashboard'a yapıştırılır.
+Listing dili **English (en)** — eklenti tek dilli, UI metinleri doğrudan İngilizce gömülü.
 
 ---
 
 ## Listing language
-Primary: **Turkish (tr)**. İngilizce çeviri opsiyonel ama önerilir.
+**English (en)** — tek dil.
 
 ## Name
 `FACEIT Ping Viewer`
 
 ## Short description (max 132 chars)
-`FACEIT maçlarındaki sunucu lokasyonlarına olan ping değerlerinizi görün ve geçmişe göre en iyi sunucuyu seçin.`
-
-(132 char sayımı: 130. Sınır içinde.)
+`See your ping to every FACEIT match server location and pick the best server from your history.`
 
 ## Category
-**Productivity** veya **Sports**. Productivity daha doğru — Sports kategorisi izleyici/skor uygulamaları için.
+**Tools**. (Chrome 2024'te taksonomiyi değiştirdi; eski "Productivity/Sports" artık yok.)
+Eklenti bir yardımcı araç — ping ölçüp karar vermeye yardım ediyor; "Tools" en doğru oturan kategori.
+Alternatif: **Games** (CS2'ye özel olduğu için gaming kitlesi). Kategori sonradan değiştirilebilir.
 
 ## Detailed description
 
 ```
-FACEIT Ping Viewer, CS2 oyuncularının maç öncesi server vote ekranında en iyi sunucuyu seçmesini kolaylaştırır.
+FACEIT Ping Viewer helps CS2 players pick the best server on the pre-match server vote screen.
 
-ÖZELLİKLER
+FEATURES
 
-• Popup'tan tüm bilinen FACEIT sunucu lokasyonlarına anlık ping ölçümü
-  - Helsinki, Frankfurt, Stockholm, Amsterdam, London, Paris, US East/West, Sydney ve daha fazlası
-  - Her ölçüm best-of-N (3 ölçümün minimumu) ile jitter'a karşı dirençli
-  - Renkli rozetler: yeşil (<40ms), sarı (<90ms), kırmızı (90ms+)
+• Instant ping measurement from the popup to every known FACEIT server location
+  - Helsinki, Frankfurt, Stockholm, Amsterdam, London, Paris, US East/West, Sydney and more
+  - Each measurement is best-of-N (minimum of 3 samples) to resist jitter
+  - Color-coded badges: green (<40ms), yellow (<90ms), red (90ms+)
 
-• Geçmiş takibi
-  - Karşılaştığınız her sunucu otomatik olarak hafızada tutulur
-  - "Kaç kez görüldü", "son ölçümün ne zaman yapıldı" gibi metrikler
-  - Tüm veriler cihazınızda yerel olarak (chrome.storage.local), buluta gönderilmez
+• History tracking
+  - Every server you encounter is remembered automatically
+  - Metrics like "how many times seen" and "when it was last measured"
+  - All data stays locally on your device (chrome.storage.local); nothing is sent to the cloud
 
-• Match room entegrasyonu (deneysel)
-  - faceit.com/cs2/room sayfalarında server vote butonlarının yanına inline ping rozeti enjekte eder
-  - FACEIT'in UI yapısı sık değişebilir; bu özellik bazı durumlarda devre dışı kalabilir
+• Match room integration (experimental)
+  - Injects an inline ping badge next to the server vote UI on faceit.com/cs2/room pages
+  - FACEIT's UI structure changes often; this feature may be temporarily unavailable
 
-PİNGLER NASIL ÖLÇÜLÜYOR?
+HOW IS PING MEASURED?
 
-Tarayıcılar düşük seviye ICMP (klasik ping) atamadığı için uygulama, FACEIT sunucularıyla aynı lokasyonlarda bulunan Hetzner ve Linode datacenter speed-test endpoint'lerine HTTP HEAD istekleri atarak gecikme ölçer. FACEIT EU sunucularının büyük kısmı zaten Hetzner'da host edildiğinden ölçümler gerçek match pinginize çok yakındır (genelde ±10ms).
+Browsers can't send low-level ICMP (classic ping), so the extension measures latency by issuing
+HTTP requests to Hetzner and Linode datacenter speed-test endpoints located in the same regions as
+FACEIT game servers. Since most FACEIT EU servers are themselves hosted on Hetzner, the measurements
+are very close to your real in-game ping (usually within ±10ms).
 
-GİZLİLİK
+PRIVACY
 
-Hiçbir kişisel bilgi toplanmaz, sunucumuza gönderilmez veya satılmaz. Tüm sunucu listeniz cihazınızda yerel olarak saklanır. Detaylı gizlilik politikası: https://github.com/emre-cal/faceit-ping-viewer/blob/main/PRIVACY.md
+No personal information is collected, sent to our servers, or sold. Your entire server list is stored
+locally on your device. Full privacy policy: https://github.com/emre-cal/faceit-ping-viewer/blob/main/PRIVACY.md
 
-KAYNAK KOD
+SOURCE CODE
 
-Açık kaynak: https://github.com/emre-cal/faceit-ping-viewer
+Open source: https://github.com/emre-cal/faceit-ping-viewer
 
 ---
 
-⚠ FACEIT veya Hetzner/Linode ile resmi bir bağlantısı yoktur. Bu eklenti bağımsız bir community projesidir.
+⚠ Not affiliated with FACEIT, Hetzner, or Linode. This is an independent community project.
 ```
 
 ## Privacy policy URL
@@ -70,25 +75,25 @@ GitHub blob view markdown'ı render eder; Chrome Web Store bu URL'i privacy poli
 > Required to inject the in-page ping badges next to FACEIT's server vote UI on match room pages.
 
 **Host permissions: `*.hetzner.com`, `*.linode.com`**
-> Required to issue HTTP HEAD requests for latency measurement to cloud datacenter speed-test endpoints in the same regions as FACEIT game servers. No personal data is transmitted in these requests.
+> Required to issue HTTP requests for latency measurement to cloud datacenter speed-test endpoints in the same regions as FACEIT game servers. No personal data is transmitted in these requests.
 
 ## Single purpose description
 > Show ping latency to FACEIT match server locations and remember server history per user.
 
 ## Screenshots needed (min 1, max 5)
-- **Şart**: 1280×800 px (veya 640×400 px) PNG/JPG
-- Önerilen 3 ekran:
-  1. Fixture sayfası — inline rozet UI'ı (yeşil/sarı/kırmızı ping)
-  2. Popup açık — geçmiş sunucu listesi + son pingler
-  3. Marketing banner (opsiyonel) — feature highlight
+- **Required**: 1280×800 px (or 640×400 px) PNG/JPG
+- Recommended 3 screens:
+  1. Match room — inline badge UI (green/yellow/red ping)
+  2. Popup open — server history list + latest pings
+  3. Marketing banner (optional) — feature highlight
 
-## Promotional tile (opsiyonel)
+## Promotional tile (optional)
 - Small: 440×280
 - Marquee: 1400×560
 
 ## Pricing
-Free (ücretsiz)
+Free
 
 ## Distribution
-- **Public** (Chrome Web Store'da herkese açık) veya
-- **Unlisted** (link ile paylaşılır, search'te çıkmaz) — detector kanıtlanana kadar bu önerilir
+- **Public** (visible to everyone on the Chrome Web Store) or
+- **Unlisted** (shared via link, not shown in search) — recommended until the detector is proven

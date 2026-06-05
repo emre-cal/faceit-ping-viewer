@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "FACEIT Ping Viewer",
   "version": "0.1.0",
-  "description": "FACEIT maç ekranında her sunucu lokasyonuna olan ping değerlerinizi gösterir. Daha iyi server vote'u verin.",
+  "description": "Shows your ping to every server location in a FACEIT match. Cast a better server vote.",
   "author": "emrecaal@gmail.com",
   "homepage_url": "https://github.com/emre-cal/faceit-ping-viewer",
   "permissions": ["storage"],

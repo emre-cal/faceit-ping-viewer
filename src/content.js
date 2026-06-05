@@ -54,7 +54,7 @@
     const code = m[1].toLowerCase();
     const info = COUNTRY_TO_LOCATION[code];
     if (!info) {
-      console.debug(`[fpv] bilinmeyen ülke kodu: "${code}"`);
+      console.debug(`[fpv] unknown country code: "${code}"`);
       return null;
     }
     const nameEl = card.querySelector('[class*="Name-sc-"]');
@@ -119,7 +119,7 @@
   async function discoverAndMeasure(isLast) {
     const card = findServerCard(document);
     if (!card) {
-      console.debug("[fpv] scan: server preference card bulunamadı");
+      console.debug("[fpv] scan: server preference card not found");
       return null;
     }
     const info = extractServerInfo(card);
@@ -140,7 +140,7 @@
     if (result) {
       lastCard = result.card;
       measurementCount++;
-      console.log(`[fpv] ölçüm #${measurementCount}/${MAX_MEASUREMENTS} = ${lastPing}ms`);
+      console.log(`[fpv] measurement #${measurementCount}/${MAX_MEASUREMENTS} = ${lastPing}ms`);
       if (measurementCount >= MAX_MEASUREMENTS) {
         clearInterval(tickTimer);
         tickTimer = null;
@@ -150,7 +150,7 @@
 
   function startScanning() {
     if (tickTimer) return;
-    console.log(`[fpv] scan başladı (en fazla ${MAX_MEASUREMENTS} ölçüm, ${REFRESH_INTERVAL_SEC}sn arayla)`);
+    console.log(`[fpv] scan started (max ${MAX_MEASUREMENTS} measurements, every ${REFRESH_INTERVAL_SEC}s)`);
     measurementCount = 0;
     runMeasurement(); // ilk ölçüm hemen
     tickTimer = setInterval(runMeasurement, REFRESH_INTERVAL_SEC * 1000);

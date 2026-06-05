@@ -11,15 +11,15 @@ function cls(ms) {
 function relTime(ts) {
   if (!ts) return "—";
   const diff = (Date.now() - ts) / 1000;
-  if (diff < 60) return `${Math.floor(diff)}sn önce`;
-  if (diff < 3600) return `${Math.floor(diff / 60)}dk önce`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}sa önce`;
-  return `${Math.floor(diff / 86400)}g önce`;
+  if (diff < 60) return `${Math.floor(diff)}s ago`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
 }
 
 function render(servers) {
   if (!servers.length) {
-    listEl.innerHTML = `<li class="empty">Henüz bir maça girilmedi</li>`;
+    listEl.innerHTML = `<li class="empty">No match joined yet</li>`;
     return;
   }
   listEl.innerHTML = servers
@@ -28,7 +28,7 @@ function render(servers) {
       <li>
         <div class="label">
           <div>${s.label}</div>
-          <div class="meta">${s.seenCount}× görüldü · ${relTime(s.lastPingAt)}</div>
+          <div class="meta">seen ${s.seenCount}× · ${relTime(s.lastPingAt)}</div>
         </div>
         <span class="ping ${cls(s.lastPing)}">${s.lastPing == null ? "—" : s.lastPing + " ms"}</span>
       </li>`)
@@ -41,7 +41,7 @@ async function load() {
 }
 
 async function measure() {
-  listEl.innerHTML = `<li class="empty">Ölçülüyor…</li>`;
+  listEl.innerHTML = `<li class="empty">Measuring…</li>`;
   const { results } = await chrome.runtime.sendMessage({ type: "measureAll" });
   render(results ?? []);
 }
