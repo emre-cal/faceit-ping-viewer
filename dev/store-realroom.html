@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>FACEIT Ping Viewer — Match Room</title>
+  <link rel="stylesheet" href="../src/overlay.css" />
+  <style>
+    :root {
+      --bg: #0e0f12;
+      --panel: #1a1c22;
+      --panel-2: #20232b;
+      --line: rgba(255,255,255,0.07);
+      --orange: #ff550b;
+      --txt: #f3f4f6;
+      --muted: #8b909b;
+      --teamA: #26d1c6;
+      --teamB: #5747e6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; width: 1280px; height: 800px; overflow: hidden;
+      background:
+        radial-gradient(1200px 500px at 80% -10%, rgba(255,85,0,0.10), transparent 60%),
+        linear-gradient(180deg, #0c0d10 0%, #0e0f12 100%);
+      color: var(--txt);
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .room { padding: 22px 30px; height: 100%; display: flex; flex-direction: column; }
+
+    /* top bar */
+    .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .logo { width: 36px; height: 36px; border-radius: 9px; background: var(--orange);
+      display: grid; place-items: center; font-weight: 900; color: #161616; font-size: 19px;
+      box-shadow: 0 6px 18px rgba(255,85,0,0.35); }
+    .crumbs { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.12em; margin-top: 3px; }
+    .crumbs b { color: var(--orange); }
+    .match-title { font-size: 18px; font-weight: 700; }
+    .status { display: flex; align-items: center; gap: 14px; }
+    .chip { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: #cdd2da; background: var(--panel-2); border: 1px solid var(--line); padding: 6px 11px; border-radius: 999px; }
+
+    .main { flex: 1; display: grid; grid-template-columns: 1fr 1.18fr 1fr; gap: 16px; min-height: 0; }
+    .team { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
+    .team-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .team-name { font-weight: 700; font-size: 14px; }
+    .team-name.a { color: var(--teamA); }
+    .team-name.b { color: var(--teamB); }
+    .team-elo { font-size: 11px; color: var(--muted); }
+    .player { display: flex; align-items: center; gap: 11px; padding: 8px 6px; }
+    .player + .player { border-top: 1px solid var(--line); }
+    .ava { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; font-weight: 700; font-size: 12px; color: #0e0f12; flex-shrink: 0; }
+    .pname { font-weight: 600; font-size: 13px; }
+    .plvl { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .elo { font-size: 11px; color: var(--muted); }
+    .lvl { width: 18px; height: 18px; border-radius: 4px; background: linear-gradient(135deg,#ff5500,#ffb347); display: grid; place-items: center; font-size: 9px; font-weight: 800; color: #161616; }
+
+    .center { display: flex; flex-direction: column; gap: 14px; }
+    .vs { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px; }
+    .vs-row { display: flex; align-items: center; justify-content: center; gap: 16px; }
+    .vs .fac { font-weight: 800; font-size: 15px; }
+    .vs .fac.a { color: var(--teamA); }
+    .vs .fac.b { color: var(--teamB); }
+    .vs .x { font-size: 26px; font-weight: 900; color: var(--orange); }
+    .vs .bo { text-align: center; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; margin-top: 8px; }
+
+    .connect { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; flex: 1; display: flex; flex-direction: column; }
+    .connect h3 { margin: 0 0 4px; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; }
+    .ttc { font-size: 26px; font-weight: 800; font-family: ui-monospace, "SF Mono", Menlo, monospace; margin-bottom: 14px; }
+    .connect-btn { width: 100%; padding: 11px; background: var(--orange); color: #fff; border: 0; border-radius: 8px; font-weight: 700; font-size: 14px; margin-bottom: 18px; }
+
+    .pref-title { font-size: 11px; color: var(--orange); text-transform: uppercase; letter-spacing: 0.14em; font-weight: 800; margin: 0 0 12px; }
+    [data-testid="matchPreference"] { display: flex; align-items: center; gap: 14px; padding: 13px 15px; margin-bottom: 11px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 12px; }
+    [data-testid="matchPreference"].is-server { border-color: rgba(255,85,0,0.45); box-shadow: 0 0 0 1px rgba(255,85,0,0.16) inset; }
+    .pref-kind { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; width: 50px; flex-shrink: 0; }
+    .styles__HolderDiv-sc-380ea27-1 { display: flex; align-items: center; gap: 12px; width: 100%; }
+    .flag { width: 42px; height: 28px; border-radius: 5px; overflow: hidden; flex-shrink: 0;
+      background: linear-gradient(180deg,#ae1c28 0 33%,#fff 33% 66%,#21468b 66% 100%); box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    .flag img, .map-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .map-thumb { width: 42px; height: 28px; border-radius: 5px; overflow: hidden; flex-shrink: 0; background: linear-gradient(135deg,#5b3a1e,#2a1d12); }
+    .styles__Name-sc-cfcaa47d-3 { color: #fff; font-weight: 600; font-size: 15px; }
+    .pref-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .connect .fpv-badge { margin-left: auto; font-size: 12px; padding: 4px 10px; }
+
+    .legend { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); }
+    .legend-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 11px; display: flex; align-items: center; gap: 8px; }
+    .legend-title .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--orange); box-shadow: 0 0 9px var(--orange); }
+    .legend-row { display: flex; gap: 10px; }
+    .legend .fpv-badge { margin-left: 0; font-size: 12px; padding: 5px 12px; }
+  </style>
+</head>
+<body>
+  <div class="room">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">F</div>
+        <div>
+          <div class="match-title">CS2 5v5 — Matchmaking</div>
+          <div class="crumbs">Matchmaking · EU · <b>Super Match</b></div>
+        </div>
+      </div>
+      <div class="status">
+        <span class="chip">Veteran</span>
+        <span class="chip">Verified</span>
+        <span class="chip">Dust2</span>
+      </div>
+    </div>
+
+    <div class="main">
+
+      <!-- team A -->
+      <div class="team">
+        <div class="team-head"><span class="team-name a">team_Caseeyy</span><span class="team-elo">avg 2,106 elo</span></div>
+        <div class="player"><span class="ava" style="background:#26d1c6">C</span><span class="pname">Caseeyy</span><span class="plvl"><span class="elo">2224</span><span class="lvl">10</span></span></div>
+        <div class="player"><span class="ava" style="background:#5ad1c0">a</span><span class="pname">aimcode</span><span class="plvl"><span class="elo">2178</span><span class="lvl">10</span></span></div>
+        <div class="player"><span class="ava" style="background:#76ffde">t</span><span class="pname">tera--</span><span class="plvl"><span class="elo">2239</span><span class="lvl">10</span></span></div>
+        <div class="player"><span class="ava" style="background:#3fd0c4">r</span><span class="pname">rockyyy321</span><span class="plvl"><span class="elo">2034</span><span class="lvl">10</span></span></div>
+        <div class="player"><span class="ava" style="background:#2bb6ad">F</span><span class="pname">Fuzzy2233</span><span class="plvl"><span class="elo">1857</span><span class="lvl">9</span></span></div>
+      </div>
+
+      <!-- center -->
+      <div class="center">
+        <div class="vs">
+          <div class="vs-row">
+            <span class="fac a">team_Caseeyy</span>
+            <span class="x">VS</span>
+            <span class="fac b">team_Martex-L13</span>
+          </div>
+          <div class="bo">Best of 1 · Competitive</div>
+        </div>
+
+        <div class="connect">
+          <h3>Time to connect</h3>
+          <div class="ttc">02:15</div>
+          <button class="connect-btn">Connect to server</button>
+
+          <div class="pref-title">Match preferences</div>
+
+          <!-- REAL FACEIT server preference card (genuine class names + flag URL) -->
+          <div data-testid="matchPreference" class="styles__Background-sc-380ea27-0 is-server">
+            <span class="pref-kind">Server</span>
+            <div class="styles__HolderDiv-sc-380ea27-1">
+              <div class="flag">
+                <img src="https://distribution.faceit-cdn.net/images/flags/v1/nl.jpg?width=110&height=55" alt="" />
+              </div>
+              <div>
+                <span class="styles__Name-sc-cfcaa47d-3">Netherlands</span>
+                <div class="pref-meta">auto-selected</div>
+              </div>
+              <span class="fpv-badge fpv-good">24 ms</span>
+            </div>
+          </div>
+
+          <!-- map preference card (detector ignores it — no badge) -->
+          <div data-testid="matchPreference" class="styles__Background-sc-380ea27-0">
+            <span class="pref-kind">Map</span>
+            <div class="styles__HolderDiv-sc-380ea27-1">
+              <div class="map-thumb"></div>
+              <div>
+                <span class="styles__Name-sc-cfcaa47d-3">Dust2</span>
+                <div class="pref-meta">Veto</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="legend">
+            <div class="legend-title"><span class="dot"></span> Ping badge added by FACEIT Ping Viewer</div>
+            <div class="legend-row">
+              <span class="fpv-badge fpv-good">&lt; 40 ms</span>
+              <span class="fpv-badge fpv-mid">&lt; 90 ms</span>
+              <span class="fpv-badge fpv-bad">90 ms +</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- team B -->
+      <div class="team">
+        <div class="team-head"><span class="team-name b">team_Martex-L13</span><span class="team-elo">avg 2,103 elo</span></div>
+        <div class="player"><span class="ava" style="background:#5747e6">M</span><span class="pname">Martex-L13</span><span class="plvl"><span class="elo">2031</span><span class="lvl">10</span></span></div>
+        <div class="player"><span class="ava" style="background:#6d5dff">M</span><span class="pname">MnM-</span><span class="plvl"><span class="elo">1989</span><span class="lvl">9</span></span></div>
+        <div class="player"><span class="ava" style="background:#4638c2">C</span><span class="pname">Cel0ff</span><span class="plvl"><span class="elo">2217</span><span class="lvl">10</span></span></div>
+        <div class="player"><span class="ava" style="background:#8678ff">A</span><span class="pname">-ANc1-</span><span class="plvl"><span class="elo">2104</span><span class="lvl">10</span></span></div>
+        <div class="player"><span class="ava" style="background:#5a4ad6">B</span><span class="pname">Beatkey</span><span class="plvl"><span class="elo">2177</span><span class="lvl">10</span></span></div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

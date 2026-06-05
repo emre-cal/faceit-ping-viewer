@@ -80,6 +80,27 @@ GitHub blob view markdown'ı render eder; Chrome Web Store bu URL'i privacy poli
 ## Single purpose description
 > Show ping latency to FACEIT match server locations and remember server history per user.
 
+## Remote code use
+**Cevap: No, I am not using remote code.**
+Eklenti hiçbir uzak script/Wasm yüklemez veya `eval` etmez. Tüm JS paketin içinde gömülü.
+Hetzner/Linode'a yapılan istekler sadece **gecikme ölçümü** için `no-cors` HTTP istekleridir;
+dönen yanıt opak olduğu için okunmaz veya çalıştırılmaz (kod değil, sadece zamanlama ölçülür).
+> (Eğer form yine de bir gerekçe metni isterse:) The extension does not load or execute any remotely
+> hosted code. Outbound requests to Hetzner/Linode speed-test endpoints are latency measurements only;
+> their responses are opaque and never parsed or executed.
+
+## Data usage / certification (Privacy practices sekmesi)
+- **Data collection:** "Does not collect or use user data" işaretle (hiçbir veri toplanmıyor; sunucu listesi sadece `chrome.storage.local`'de yerel).
+- En altta üç onay kutusunu işaretle:
+  - I do not sell or transfer user data to third parties (outside approved use cases)
+  - I do not use or transfer user data for purposes unrelated to my item's single purpose
+  - I do not use or transfer user data to determine creditworthiness or for lending purposes
+- "I certify that my data usage complies with the Developer Program Policies" kutusunu işaretle.
+
+## Contact email (Settings / Account sayfası)
+- Settings → "Contact email" alanına bir e-posta gir ve **doğrula** (Google doğrulama maili gönderir).
+- Yayınlamadan önce e-posta doğrulanmış olmalı (zorunlu).
+
 ## Screenshots needed (min 1, max 5)
 - **Required**: 1280×800 px (or 640×400 px) PNG/JPG
 - Recommended 3 screens:
